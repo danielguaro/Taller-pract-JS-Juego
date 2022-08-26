@@ -2,6 +2,11 @@ const canvas = document.querySelector('#game');
 // Para acceder a los métodos de la etiqueta canvas, se crea una variable con el contexto
 const game = canvas.getContext('2d');
 
+const btnUp = document.querySelector('#up');
+const btnDown = document.querySelector('#down');
+const btnRight = document.querySelector('#right');
+const btnLeft = document.querySelector('#left');
+
 // window --> es la ventana al HTML
 // Evento load, para que cargue toda la venta, antes de ejecutar la función, load es un evento de window
 window.addEventListener('load', startGame);
@@ -29,16 +34,28 @@ function startGame() {
 	});
 	console.log(mapRowCols);
 
-	for (let row = 1; row <= 10; row++) {
-		// game.fillText(emojis['X'], elementsSize * row, elementsSize * row);
-		for (let col = 1; col <= 10; col++) {
-			game.fillText(
-				emojis[mapRowCols[row - 1][col - 1]],
-				elementsSize * col,
-				elementsSize * row
-			);
-		}
-	}
+	// Implementación de 2ble método forEach()
+	mapRowCols.forEach((row, rowInd) => {
+		// Row es un array
+		row.forEach((col, colInd) => {
+			// col es un caracter
+			const emoji = emojis[col];
+			const posX = elementsSize * (colInd + 1);
+			const posY = elementsSize * (rowInd + 1);
+			return game.fillText(emoji, posX, posY);
+		});
+	});
+
+	// for (let row = 1; row <= 10; row++) {
+	// 	// game.fillText(emojis['X'], elementsSize * row, elementsSize * row);
+	// 	for (let col = 1; col <= 10; col++) {
+	// 		game.fillText(
+	// 			emojis[mapRowCols[row - 1][col - 1]],
+	// 			elementsSize * col,
+	// 			elementsSize * row
+	// 		);
+	// 	}
+	// }
 }
 
 function setCanvasSize() {
@@ -53,4 +70,33 @@ function setCanvasSize() {
 	elementsSize = canvasSize / 10;
 
 	startGame();
+}
+
+// Para escuchar el tecleado
+window.addEventListener('keydown', moveKey);
+
+btnUp.addEventListener('click', moveUp);
+btnDown.addEventListener('click', moveDown);
+btnRight.addEventListener('click', moveRight);
+btnLeft.addEventListener('click', moveLeft);
+
+function moveUp() {
+	console.log('up');
+}
+function moveDown() {
+	console.log('down');
+}
+function moveRight() {
+	console.log('right');
+}
+function moveLeft() {
+	console.log('left');
+}
+function moveKey(event) {
+	if (event.key == 'ArrowUp') {
+		moveUp();
+	} else if (event.key == 'ArrowDown') moveDown();
+	else if (event.key == 'ArrowRight') moveRight();
+	else if (event.key == 'ArrowLeft') moveLeft();
+	else return;
 }
