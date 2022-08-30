@@ -22,6 +22,11 @@ const playerPosition = {
 	x: undefined,
 	y: undefined,
 };
+const giftPosition = {
+	x: undefined,
+	y: undefined,
+};
+let bombPosition = [];
 
 function startGame() {
 	console.log({ elementsSize, canvasSize });
@@ -29,7 +34,6 @@ function startGame() {
 	game.font = `${elementsSize}px Verdana`;
 
 	const map = maps[0];
-	console.log(map);
 	//Para conseguir las filas del mapa
 	mapRows = map.trim().split('\n'); // trim() limpia espacios al principio y al final, split() convierte un str a un array
 	// console.log(mapRows);
@@ -41,7 +45,7 @@ function startGame() {
 
 	// Para limpiar la consola
 	game.clearRect(0, 0, canvasSize, canvasSize);
-
+	bombPosition = [];
 	// Implementación de 2ble método forEach()
 	mapRowCols.forEach((row, rowInd) => {
 		// Row es un array
@@ -57,6 +61,14 @@ function startGame() {
 					playerPosition.y = posY;
 					console.log('Aqui va el player', playerPosition);
 				}
+			} else if (col == 'I') {
+				giftPosition.x = posX;
+				giftPosition.y = posY;
+			} else if (col == 'X') {
+				bombPosition.push({
+					x: posX,
+					y: posY,
+				});
 			}
 
 			game.fillText(emoji, posX, posY);
@@ -68,9 +80,9 @@ function startGame() {
 
 function setCanvasSize() {
 	if (window.innerHeight >= window.innerWidth) {
-		canvasSize = Math.floor(window.innerWidth * 0.8);
+		canvasSize = window.innerWidth * 0.8;
 	} else {
-		canvasSize = Math.floor(window.innerHeight * 0.8);
+		canvasSize = window.innerHeight * 0.8;
 	}
 	canvas.setAttribute('height', canvasSize); // Para setear un atributo
 	canvas.setAttribute('width', canvasSize); // Para setear un atributo
@@ -90,7 +102,26 @@ btnRight.addEventListener('click', moveRight);
 btnLeft.addEventListener('click', moveLeft);
 
 function movePlayer() {
-	return game.fillText(emojis.PLAYER, playerPosition.x, playerPosition.y);
+	const giftCollisionX =
+		playerPosition.x.toFixed(2) == giftPosition.x.toFixed(2);
+	const giftCollisionY =
+		playerPosition.y.toFixed(2) == giftPosition.y.toFixed(2);
+	const giftCollision = giftCollisionX && giftCollisionY;
+	console.log(playerPosition, giftPosition);
+	console.log(giftCollision);
+	if (giftCollision) {
+		console.log('Pasaste el nivel');
+	}
+
+	const bombCollision = bombPosition.find((position) => {
+		const bombCollisionX = playerPosition.x.toFixed(2) == position.x.toFixed(2);
+		const bombCollisionY = playerPosition.y.toFixed(2) == position.y.toFixed(2);
+		return bombCollisionX && bombCollisionY;
+	});
+	if (bombCollision) {
+		console.log('BOOM, explotaste');
+	}
+	game.fillText(emojis.PLAYER, playerPosition.x, playerPosition.y);
 }
 
 // function moveUp() {
@@ -125,10 +156,7 @@ function movePlayer() {
 
 //
 function moveUp() {
-	if (
-		Math.floor(playerPosition.y) - Math.floor(elementsSize) <
-		Math.floor(elementsSize)
-	) {
+	if (playerPosition.y - elementsSize < elementsSize) {
 		console.log('out');
 	} else {
 		playerPosition.y -= elementsSize;
@@ -136,10 +164,7 @@ function moveUp() {
 	}
 }
 function moveDown() {
-	if (
-		Math.floor(playerPosition.y) + Math.floor(elementsSize) >
-		Math.floor(canvasSize)
-	) {
+	if (playerPosition.y + elementsSize > canvasSize) {
 		console.log('out');
 	} else {
 		playerPosition.y += elementsSize;
@@ -147,10 +172,7 @@ function moveDown() {
 	}
 }
 function moveRight() {
-	if (
-		Math.floor(playerPosition.x) + Math.floor(elementsSize) >
-		Math.floor(canvasSize)
-	) {
+	if (playerPosition.x + elementsSize > canvasSize) {
 		console.log('out');
 	} else {
 		playerPosition.x += elementsSize;
@@ -158,10 +180,7 @@ function moveRight() {
 	}
 }
 function moveLeft() {
-	if (
-		Math.floor(playerPosition.x) - Math.floor(elementsSize) <
-		Math.floor(elementsSize)
-	) {
+	if (playerPosition.x - elementsSize < elementsSize) {
 		console.log('out');
 	} else {
 		playerPosition.x -= elementsSize;
@@ -177,3 +196,6 @@ function moveKey(event) {
 	else if (event.key == 'ArrowLeft') moveLeft();
 	else return;
 }
+
+const numerito = 45.2133245;
+console.log(numerito.toFixed(2));
