@@ -6,6 +6,10 @@ const btnUp = document.querySelector('#up');
 const btnDown = document.querySelector('#down');
 const btnRight = document.querySelector('#right');
 const btnLeft = document.querySelector('#left');
+const spanLives = document.querySelector('#lives');
+const spanTime = document.querySelector('#time');
+const spanRecord = document.querySelector('#record');
+const pResult = document.querySelector('#result');
 
 // window --> es la ventana al HTML
 // Evento load, para que cargue toda la venta, antes de ejecutar la función, load es un evento de window
@@ -29,9 +33,11 @@ const giftPosition = {
 let bombPosition = [];
 let level = 0;
 let lives = 3;
+let timeStart;
+let timePlayer;
+let timeInterval;
 
 function startGame() {
-	console.log({ elementsSize, canvasSize });
 	game.textAlign = 'end';
 	game.font = `${elementsSize}px Verdana`;
 
@@ -43,6 +49,15 @@ function startGame() {
 		return;
 	}
 
+	//Calcular tiempo
+	if (!timeStart) {
+		timeStart = Date.now();
+		timeInterval = setInterval(() => {
+			showTime();
+		}, 100);
+		showRecord();
+	}
+
 	//Para conseguir las filas del mapa
 	mapRows = map.trim().split('\n'); // trim() limpia espacios al principio y al final, split() convierte un str a un array
 	// console.log(mapRows);
@@ -50,8 +65,8 @@ function startGame() {
 	const mapRowCols = mapRows.map((row) => {
 		return row.trim().split('');
 	});
-	console.log(mapRowCols);
 
+	showLives();
 	// Para limpiar la consola
 	game.clearRect(0, 0, canvasSize, canvasSize);
 	bombPosition = [];
@@ -69,7 +84,6 @@ function startGame() {
 				if (!playerPosition.x && !playerPosition.y) {
 					playerPosition.x = posX;
 					playerPosition.y = posY;
-					console.log('Aqui va el player', playerPosition);
 				}
 			} else if (col == 'I') {
 				giftPosition.x = posX;
@@ -98,7 +112,6 @@ function setCanvasSize() {
 	canvas.setAttribute('width', canvasSize); // Para setear un atributo
 
 	elementsSize = canvasSize / 10;
-	console.log(canvasSize);
 
 	startGame();
 }
@@ -117,8 +130,6 @@ function movePlayer() {
 	const giftCollisionY =
 		playerPosition.y.toFixed(2) == giftPosition.y.toFixed(2);
 	const giftCollision = giftCollisionX && giftCollisionY;
-	console.log(playerPosition, giftPosition);
-	console.log(giftCollision);
 	if (giftCollision) {
 		console.log('Pasaste el nivel');
 		levelWin();
@@ -148,8 +159,8 @@ function levelFail() {
 	if (lives <= 0) {
 		level = 0;
 		lives = 3;
+		timeStart = undefined;
 	}
-	console.log(lives);
 	playerPosition.x = undefined;
 	playerPosition.y = undefined;
 	startGame();
@@ -158,6 +169,46 @@ function levelFail() {
 // Función cuando gana el juego
 function gameWin() {
 	console.log('Terminaste');
+	clearInterval(timeInterval);
+
+	const recordTime = localStorage.getItem('record');
+	const playerTime = (Date.now() - timeStart) / 1000;
+	pResult.innerHTML = '';
+	if (recordTime) {
+		if (playerTime < recordTime) {
+			localStorage.setItem('record', playerTime);
+			pResult.innerHTML = 'superaste el record';
+		} else {
+			pResult.innerHTML = 'No superaste el record';
+		}
+	} else {
+		localStorage.setItem('record', playerTime);
+	}
+
+	console.log({ recordTime, playerTime });
+}
+
+//Mostrar vidas
+function showLives() {
+	// // Método implementando Array
+	// // Para crear un array con el número de posiciones de un elemento puntual
+	// const hearts = Array(lives).fill(emojis['HEART']); //[1,2,3]
+	// const heartsView = hearts.join('');
+	// spanLives.innerText = heartsView;
+
+	// Método implementando str (mas limpio para este caso)
+	const hearts = emojis['HEART'].repeat(lives);
+	spanLives.innerText = hearts;
+}
+
+// Mostrar el tiempo
+function showTime() {
+	spanTime.innerText = (Date.now() - timeStart) / 1000;
+}
+
+//Mostrar record
+function showRecord() {
+	spanRecord.innerText = localStorage.getItem('record');
 }
 
 // function moveUp() {
@@ -193,7 +244,6 @@ function gameWin() {
 //
 function moveUp() {
 	if (playerPosition.y - elementsSize < elementsSize) {
-		console.log('out');
 	} else {
 		playerPosition.y -= elementsSize;
 		startGame();
@@ -201,7 +251,6 @@ function moveUp() {
 }
 function moveDown() {
 	if (playerPosition.y + elementsSize > canvasSize) {
-		console.log('out');
 	} else {
 		playerPosition.y += elementsSize;
 		startGame();
@@ -209,7 +258,6 @@ function moveDown() {
 }
 function moveRight() {
 	if (playerPosition.x + elementsSize > canvasSize) {
-		console.log('out');
 	} else {
 		playerPosition.x += elementsSize;
 		startGame();
@@ -217,7 +265,6 @@ function moveRight() {
 }
 function moveLeft() {
 	if (playerPosition.x - elementsSize < elementsSize) {
-		console.log('out');
 	} else {
 		playerPosition.x -= elementsSize;
 		startGame();
