@@ -27,13 +27,22 @@ const giftPosition = {
 	y: undefined,
 };
 let bombPosition = [];
+let level = 0;
+let lives = 3;
 
 function startGame() {
 	console.log({ elementsSize, canvasSize });
 	game.textAlign = 'end';
 	game.font = `${elementsSize}px Verdana`;
 
-	const map = maps[0];
+	const map = maps[level];
+
+	// Finalizar juego
+	if (!map) {
+		gameWin();
+		return;
+	}
+
 	//Para conseguir las filas del mapa
 	mapRows = map.trim().split('\n'); // trim() limpia espacios al principio y al final, split() convierte un str a un array
 	// console.log(mapRows);
@@ -46,6 +55,7 @@ function startGame() {
 	// Para limpiar la consola
 	game.clearRect(0, 0, canvasSize, canvasSize);
 	bombPosition = [];
+
 	// Implementación de 2ble método forEach()
 	mapRowCols.forEach((row, rowInd) => {
 		// Row es un array
@@ -111,6 +121,7 @@ function movePlayer() {
 	console.log(giftCollision);
 	if (giftCollision) {
 		console.log('Pasaste el nivel');
+		levelWin();
 	}
 
 	const bombCollision = bombPosition.find((position) => {
@@ -120,8 +131,33 @@ function movePlayer() {
 	});
 	if (bombCollision) {
 		console.log('BOOM, explotaste');
+		levelFail();
 	}
 	game.fillText(emojis.PLAYER, playerPosition.x, playerPosition.y);
+}
+
+// Funcion para pasar de nivel
+function levelWin() {
+	level++;
+	startGame();
+}
+
+// Función cuando pierdes
+function levelFail() {
+	lives--;
+	if (lives <= 0) {
+		level = 0;
+		lives = 3;
+	}
+	console.log(lives);
+	playerPosition.x = undefined;
+	playerPosition.y = undefined;
+	startGame();
+}
+
+// Función cuando gana el juego
+function gameWin() {
+	console.log('Terminaste');
 }
 
 // function moveUp() {
