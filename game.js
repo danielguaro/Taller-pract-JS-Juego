@@ -2,6 +2,10 @@ const canvas = document.querySelector('#game');
 // Para acceder a los métodos de la etiqueta canvas, se crea una variable con el contexto
 const game = canvas.getContext('2d');
 
+const start = document.querySelector('.start');
+const displayStart = document.querySelector('.game-container');
+const end = document.querySelector('.end');
+
 const btnUp = document.querySelector('#up');
 const btnDown = document.querySelector('#down');
 const btnRight = document.querySelector('#right');
@@ -32,6 +36,7 @@ const impact = {
 	x: undefined,
 	y: undefined,
 };
+let toStart;
 
 // window --> es la ventana al HTML
 // Evento load, para que cargue toda la venta, antes de ejecutar la función, load es un evento de window
@@ -41,6 +46,22 @@ window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize); // Evento que es escuchado cada que se genera un ajuste en el tamaño de la pantalla
 //
 
+start.addEventListener('click', () => {
+	displayStart.classList.remove('display-none');
+	end.classList.remove('display-none');
+	toStart = 1;
+	startGame();
+	start.classList.add('display-none');
+});
+
+end.addEventListener('click', () => {
+	start.classList.remove('display-none');
+	displayStart.classList.add('display-none');
+	end.classList.add('display-none');
+	toStart = 0;
+	levelFail();
+	console.log(toStart);
+});
 function setCanvasSize() {
 	if (window.innerHeight > window.innerWidth) {
 		canvasSize = window.innerWidth * 0.7;
@@ -68,12 +89,11 @@ function startGame() {
 
 	// Finalizar juego
 	if (!map) {
-		gameWin();
-		return;
+		return gameWin();
 	}
 
 	//Calcular tiempo
-	if (!timeStart) {
+	if (!timeStart && toStart === 1) {
 		timeStart = Date.now();
 		timeInterval = setInterval(() => {
 			showTime();
@@ -172,7 +192,7 @@ function levelWin() {
 // Función cuando pierdes
 function levelFail() {
 	lives--;
-	if (lives <= 0) {
+	if (toStart === 0 || lives <= 0) {
 		level = 0;
 		lives = 3;
 		timeStart = undefined;
@@ -186,7 +206,6 @@ function levelFail() {
 
 // Función cuando gana el juego
 function gameWin() {
-	console.log('Terminaste');
 	clearInterval(timeInterval);
 
 	const recordTime = localStorage.getItem('record');
@@ -201,6 +220,7 @@ function gameWin() {
 		}
 	} else {
 		localStorage.setItem('record', playerTime);
+		pResult.innerHTML = 'Este es el nuevo record!';
 	}
 
 	console.log({ recordTime, playerTime });

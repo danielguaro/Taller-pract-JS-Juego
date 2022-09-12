@@ -8,7 +8,10 @@
 		<title>Game</title>
 	</head>
 	<body>
-		<div class="game-container">
+		<div>
+			<button class="start">Comenzar</button>
+		</div>
+		<div class="game-container display-none">
 			<canvas id="game"></canvas>
 			<div class="btns">
 				<button id="up">Arriba</button>
@@ -20,6 +23,9 @@
 				<p>Vidas : <span id="lives"></span></p>
 				<p>Tiempo 🕐 : <span id="time"></span></p>
 				<p>Record Actual : <span id="record"></span></p>
+				<div>
+					<button class="end display-none">Terminar partida</button>
+				</div>
 				<p id="result"></p>
 			</div>
 		</div>
