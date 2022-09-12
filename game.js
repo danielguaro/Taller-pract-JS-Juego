@@ -11,14 +11,6 @@ const spanTime = document.querySelector('#time');
 const spanRecord = document.querySelector('#record');
 const pResult = document.querySelector('#result');
 
-// window --> es la ventana al HTML
-// Evento load, para que cargue toda la venta, antes de ejecutar la función, load es un evento de window
-window.addEventListener('load', startGame);
-
-// Clase 4
-window.addEventListener('resize', setCanvasSize); // Evento que es escuchado cada que se genera un ajuste en el tamaño de la pantalla
-//
-
 //variables globales
 let canvasSize;
 let elementsSize;
@@ -36,6 +28,37 @@ let lives = 3;
 let timeStart;
 let timePlayer;
 let timeInterval;
+const impact = {
+	x: undefined,
+	y: undefined,
+};
+
+// window --> es la ventana al HTML
+// Evento load, para que cargue toda la venta, antes de ejecutar la función, load es un evento de window
+window.addEventListener('load', setCanvasSize);
+
+// Clase 4
+window.addEventListener('resize', setCanvasSize); // Evento que es escuchado cada que se genera un ajuste en el tamaño de la pantalla
+//
+
+function setCanvasSize() {
+	if (window.innerHeight > window.innerWidth) {
+		canvasSize = window.innerWidth * 0.7;
+	} else {
+		canvasSize = window.innerHeight * 0.7;
+	}
+
+	canvasSize = canvasSize.toFixed(2) * 1;
+	canvas.setAttribute('height', canvasSize); // Para setear un atributo
+	canvas.setAttribute('width', canvasSize); // Para setear un atributo
+
+	elementsSize = canvasSize / 10;
+	console.log({ canvasSize, elementsSize });
+
+	playerPosition.x = undefined;
+	playerPosition.y = undefined;
+	startGame();
+}
 
 function startGame() {
 	game.textAlign = 'end';
@@ -58,6 +81,9 @@ function startGame() {
 		showRecord();
 	}
 
+	// Para limpiar la consola
+	game.clearRect(0, 0, canvasSize, canvasSize);
+
 	//Para conseguir las filas del mapa
 	mapRows = map.trim().split('\n'); // trim() limpia espacios al principio y al final, split() convierte un str a un array
 	// console.log(mapRows);
@@ -67,8 +93,8 @@ function startGame() {
 	});
 
 	showLives();
-	// Para limpiar la consola
-	game.clearRect(0, 0, canvasSize, canvasSize);
+
+	// Para limpiar el render de la posición de las bombas
 	bombPosition = [];
 
 	// Implementación de 2ble método forEach()
@@ -102,20 +128,6 @@ function startGame() {
 	movePlayer();
 }
 
-function setCanvasSize() {
-	if (window.innerHeight >= window.innerWidth) {
-		canvasSize = window.innerWidth * 0.8;
-	} else {
-		canvasSize = window.innerHeight * 0.8;
-	}
-	canvas.setAttribute('height', canvasSize); // Para setear un atributo
-	canvas.setAttribute('width', canvasSize); // Para setear un atributo
-
-	elementsSize = canvasSize / 10;
-
-	startGame();
-}
-
 // Para escuchar el tecleado
 window.addEventListener('keydown', moveKey);
 
@@ -142,7 +154,11 @@ function movePlayer() {
 	});
 	if (bombCollision) {
 		console.log('BOOM, explotaste');
+		impact.x = playerPosition.x.toFixed(2) * 1;
+		impact.y = playerPosition.y.toFixed(2) * 1;
+		console.log({ impact });
 		levelFail();
+		game.fillText(emojis.BOMB_COLLISION, impact.x, impact.y);
 	}
 	game.fillText(emojis.PLAYER, playerPosition.x, playerPosition.y);
 }
@@ -163,7 +179,9 @@ function levelFail() {
 	}
 	playerPosition.x = undefined;
 	playerPosition.y = undefined;
-	startGame();
+	setTimeout(() => {
+		startGame();
+	}, 1000);
 }
 
 // Función cuando gana el juego
@@ -173,9 +191,9 @@ function gameWin() {
 
 	const recordTime = localStorage.getItem('record');
 	const playerTime = (Date.now() - timeStart) / 1000;
-	pResult.innerHTML = '';
+	// pResult.innerHTML = '';
 	if (recordTime) {
-		if (playerTime < recordTime) {
+		if (recordTime >= playerTime) {
 			localStorage.setItem('record', playerTime);
 			pResult.innerHTML = 'superaste el record';
 		} else {
@@ -271,6 +289,7 @@ function moveLeft() {
 	}
 }
 
+//Escuchar las teclas
 function moveKey(event) {
 	if (event.key == 'ArrowUp') {
 		moveUp();
